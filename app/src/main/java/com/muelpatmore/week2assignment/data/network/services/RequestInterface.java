@@ -1,8 +1,12 @@
 package com.muelpatmore.week2assignment.data.network.services;
 
 import com.muelpatmore.week2assignment.data.constants.API_Constants;
+import com.muelpatmore.week2assignment.data.network.services.models.MusicResultsModel;
 
 import java.util.List;
+
+import io.reactivex.Observable;
+import retrofit2.http.GET;
 
 /**
  * Created by Samuel on 24/11/2017.
@@ -10,9 +14,13 @@ import java.util.List;
 
 public interface RequestInterface {
 
-    @GET(API_Constants.)
-        // ensure Observable if from reactivex library (unless data is >1,000)
-        // List as JSON schema starts with an array ( '[' )
-    Observable<> getCakesList();
+    @GET(API_Constants.CLASSIC_QUERY)
+    Observable<MusicResultsModel> getClassicList();
+
+    @GET(API_Constants.ROCK_QUERY)
+    Observable<MusicResultsModel> getRockList();
+
+    @GET(API_Constants.POP_QUERY)
+    Observable<MusicResultsModel> getPopList();
 
 }
