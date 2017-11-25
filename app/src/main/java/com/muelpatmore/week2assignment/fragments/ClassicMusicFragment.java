@@ -1,18 +1,20 @@
 package com.muelpatmore.week2assignment.fragments;
 
 
-import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.muelpatmore.week2assignment.MusicListAdapter;
+import com.muelpatmore.week2assignment.MyMusicApp;
 import com.muelpatmore.week2assignment.R;
 import com.muelpatmore.week2assignment.data.network.services.RequestInterface;
 import com.muelpatmore.week2assignment.data.network.services.ServerConnection;
@@ -29,17 +31,20 @@ import io.reactivex.schedulers.Schedulers;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ClassicMusicFragment extends Fragment {
+public class ClassicMusicFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
 
-    public static final String TAG = "ClassicMusicFragment";
+    public static final String TAG = ClassicMusicFragment.class.getSimpleName();
+
+    private static final String SCROLL_POSITION = "scroll position";
 
 
-    private RequestInterface requestInterface;
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter recyclerViewAdapter;
-    private RecyclerView.LayoutManager layoutManager;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private RequestInterface mRequestInterface;
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mRecyclerViewAdapter;
+    private LinearLayoutManager mLayoutManager;
 
-    private ArrayList<SongModel> songList;
+    private ArrayList<SongModel> mSongList;
 
 
     public ClassicMusicFragment() {
@@ -57,58 +62,65 @@ public class ClassicMusicFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         getClassicMusicList();
 
         Log.i(TAG, "Creating LayoutManager");
-        layoutManager = new LinearLayoutManager(getActivity());
+        mLayoutManager = new LinearLayoutManager(getActivity());
 
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeToRefreshLayout);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+
+        // restore instance state on reload
         if(savedInstanceState != null) {
-            //ToDo restore instance on rotation/resumption
+            // restore scroll position in RecyclerView
+            int scrollPosition = savedInstanceState.getInt(SCROLL_POSITION, 0);
+            if (mRecyclerView.getLayoutManager() != null) {
+                //ToDo this is not working yet
+                mRecyclerView.getLayoutManager().scrollToPosition(scrollPosition);
+            }
         }
 
-        //initRecyclerLayout(songList);
+        //initRecyclerLayout(mSongList);
 
     }
 
     public void initRecyclerLayout(List<SongModel> list) {
         Log.i(TAG, "initRecylerLayout");
-        songList = new ArrayList<>(list);
+        mSongList = new ArrayList<>(list);
         //get stored scroll position if already entered. (inspure by android dev esxample)
         int scrollPosition = 0;
-        if(recyclerView.getLayoutManager() != null) {
-            scrollPosition = ((LinearLayoutManager) recyclerView.getLayoutManager())
+        if(mRecyclerView.getLayoutManager() != null) {
+            scrollPosition = ((LinearLayoutManager) mRecyclerView.getLayoutManager())
                     .findFirstCompletelyVisibleItemPosition();
         }
-        // set layout type
-//
-//        if (songList == null) {
-//            //ToDo replace with code to retrieve data from db or API
-//            Log.e(TAG, "No data to display in RecyclerLayout");
-//            return;
-//        }
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerViewAdapter = new MusicListAdapter(songList, scrollPosition, getContext());
-        recyclerView.setAdapter(recyclerViewAdapter);
+        //set layout type
+
+        if (mSongList == null) {
+            //ToDo replace with code to retrieve data from db or API
+            Log.e(TAG, "No data to display in RecyclerLayout");
+            return;
+        }
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerViewAdapter = new MusicListAdapter(mSongList, scrollPosition, getContext());
+        mRecyclerView.setAdapter(mRecyclerViewAdapter);
+        mRecyclerView.getLayoutManager().scrollToPosition(scrollPosition);
+
 
     }
 
-
     public void getClassicMusicList() {
-        requestInterface = ServerConnection.getServerConnection();
-        requestInterface.getClassicList()
+        mRequestInterface = ServerConnection.getServerConnection();
+        mRequestInterface.getClassicList()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Consumer<MusicResultsModel>() {
                     @Override
                     public void accept(MusicResultsModel musicResultsModel) throws Exception {
                         Log.i(TAG, "API data recieved");
-                        songList = new ArrayList<>(musicResultsModel.getResults());
+                        mSongList = new ArrayList<>(musicResultsModel.getResults());
                         initRecyclerLayout(musicResultsModel.getResults());
-                        for (SongModel s : songList) {
-                            Log.i(TAG, s.getTrackName());
-                        }
-                        Log.i(TAG, "List of "+songList.size()+"s read from API.");
+                        Log.i(TAG, "List of "+ mSongList.size()+"s read from API.");
                     }
                 }, new Consumer<Throwable>() {
                     @Override
@@ -116,10 +128,23 @@ public class ClassicMusicFragment extends Fragment {
                         throwable.printStackTrace();
                     }
                 });
+
+
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
+        int scrollPosition = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+        savedInstanceState.putInt(SCROLL_POSITION, scrollPosition);
+        Log.i(TAG, "Scroll positon saved in instance state.");
+    }
+
+    @Override
+    public void onRefresh() {
+        Log.i(TAG, "Refreshing content");
+        Toast.makeText(MyMusicApp.getContext(), "Refreshing content", Toast.LENGTH_SHORT).show();
+        getClassicMusicList();
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 }
