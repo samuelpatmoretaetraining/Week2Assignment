@@ -20,12 +20,12 @@ public class AppDataManager implements IDataManager {
 
     @Override
     public Observable<MusicResultsModel> getClassicList() {
-        return null;
+        return mAPIHelper.getClassicList();
     }
 
     @Override
     public Observable<MusicResultsModel> getRockList() {
-        return null;
+        return mAPIHelper.getRockList();
     }
 
     @Override

@@ -9,7 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 
-import com.muelpatmore.week2assignment.fragments.ClassicMusicFragment;
+import com.muelpatmore.week2assignment.ui.tracklist.TrackListView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .add( R.id.fragmentContainer, new ClassicMusicFragment())
+                .add( R.id.fragmentContainer, new TrackListView())
                 .commit();
 
     }

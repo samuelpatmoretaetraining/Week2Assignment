@@ -24,7 +24,7 @@ public class ServerConnection {
     private static RequestInterface requestInterface;
 
     public static RequestInterface getServerConnection() {
-        retrofit =new Retrofit.Builder()
+        retrofit= new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
                 // Adapter factor required to display data in RecyclerView
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())

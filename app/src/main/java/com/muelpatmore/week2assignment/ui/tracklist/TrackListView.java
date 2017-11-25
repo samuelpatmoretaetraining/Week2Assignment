@@ -1,4 +1,4 @@
-package com.muelpatmore.week2assignment.fragments;
+package com.muelpatmore.week2assignment.ui.tracklist;
 
 
 import android.os.Bundle;
@@ -16,28 +16,26 @@ import android.widget.Toast;
 import com.muelpatmore.week2assignment.MusicListAdapter;
 import com.muelpatmore.week2assignment.MyMusicApp;
 import com.muelpatmore.week2assignment.R;
+import com.muelpatmore.week2assignment.data.AppDataManager;
 import com.muelpatmore.week2assignment.data.network.services.RequestInterface;
-import com.muelpatmore.week2assignment.data.network.services.ServerConnection;
-import com.muelpatmore.week2assignment.data.network.models.MusicResultsModel;
 import com.muelpatmore.week2assignment.data.network.models.SongModel;
+import com.muelpatmore.week2assignment.ui.utils.rx.AppSchedulerProvider;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.disposables.CompositeDisposable;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ClassicMusicFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
+public class TrackListView extends Fragment implements SwipeRefreshLayout.OnRefreshListener, TrackListMvpView {
 
-    public static final String TAG = ClassicMusicFragment.class.getSimpleName();
+    public static final String TAG = TrackListView.class.getSimpleName();
 
     private static final String SCROLL_POSITION = "scroll position";
 
 
+    private TrackListPresenter mTrackListPresenter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RequestInterface mRequestInterface;
     private RecyclerView mRecyclerView;
@@ -47,7 +45,7 @@ public class ClassicMusicFragment extends Fragment implements SwipeRefreshLayout
     private ArrayList<SongModel> mSongList;
 
 
-    public ClassicMusicFragment() {
+    public TrackListView() {
         // Required empty public constructor
     }
 
@@ -63,7 +61,11 @@ public class ClassicMusicFragment extends Fragment implements SwipeRefreshLayout
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
-        getClassicMusicList();
+        //getClassicMusicList();
+
+        mTrackListPresenter = new TrackListPresenter(new AppDataManager(), new AppSchedulerProvider(), new CompositeDisposable());
+        mTrackListPresenter.onAttach(this);
+        mTrackListPresenter.onViewPrepared(this);
 
         Log.i(TAG, "Creating LayoutManager");
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -72,7 +74,9 @@ public class ClassicMusicFragment extends Fragment implements SwipeRefreshLayout
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
         // restore instance state on reload
-        if(savedInstanceState != null) {
+        if(savedInstanceState == null) {
+            mTrackListPresenter.getTrackList();
+        } else {
             // restore scroll position in RecyclerView
             int scrollPosition = savedInstanceState.getInt(SCROLL_POSITION, 0);
             if (mRecyclerView.getLayoutManager() != null) {
@@ -81,13 +85,10 @@ public class ClassicMusicFragment extends Fragment implements SwipeRefreshLayout
             }
         }
 
-        //initRecyclerLayout(mSongList);
-
     }
 
-    public void initRecyclerLayout(List<SongModel> list) {
+    public void initRecyclerLayout() {
         Log.i(TAG, "initRecylerLayout");
-        mSongList = new ArrayList<>(list);
         //get stored scroll position if already entered. (inspure by android dev esxample)
         int scrollPosition = 0;
         if(mRecyclerView.getLayoutManager() != null) {
@@ -98,6 +99,7 @@ public class ClassicMusicFragment extends Fragment implements SwipeRefreshLayout
 
         if (mSongList == null) {
             //ToDo replace with code to retrieve data from db or API
+
             Log.e(TAG, "No data to display in RecyclerLayout");
             return;
         }
@@ -109,28 +111,26 @@ public class ClassicMusicFragment extends Fragment implements SwipeRefreshLayout
 
     }
 
-    public void getClassicMusicList() {
-        mRequestInterface = ServerConnection.getServerConnection();
-        mRequestInterface.getClassicList()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<MusicResultsModel>() {
-                    @Override
-                    public void accept(MusicResultsModel musicResultsModel) throws Exception {
-                        Log.i(TAG, "API data recieved");
-                        mSongList = new ArrayList<>(musicResultsModel.getResults());
-                        initRecyclerLayout(musicResultsModel.getResults());
-                        Log.i(TAG, "List of "+ mSongList.size()+"s read from API.");
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        throwable.printStackTrace();
-                    }
-                });
-
-
-    }
+//    public void getClassicMusicList() {
+//        mRequestInterface = ServerConnection.getServerConnection();
+//        mRequestInterface.getClassicList()
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribeOn(Schedulers.io())
+//                .subscribe(new Consumer<MusicResultsModel>() {
+//                    @Override
+//                    public void accept(MusicResultsModel musicResultsModel) throws Exception {
+//                        Log.i(TAG, "API data recieved");
+//                        mSongList = new ArrayList<>(musicResultsModel.getResults());
+//                        initRecyclerLayout(musicResultsModel.getResults());
+//                        Log.i(TAG, "List of "+ mSongList.size()+"s read from API.");
+//                    }
+//                }, new Consumer<Throwable>() {
+//                    @Override
+//                    public void accept(Throwable throwable) throws Exception {
+//                        throwable.printStackTrace();
+//                    }
+//                });
+//    }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -144,7 +144,64 @@ public class ClassicMusicFragment extends Fragment implements SwipeRefreshLayout
     public void onRefresh() {
         Log.i(TAG, "Refreshing content");
         Toast.makeText(MyMusicApp.getContext(), "Refreshing content", Toast.LENGTH_SHORT).show();
-        getClassicMusicList();
-        mSwipeRefreshLayout.setRefreshing(false);
+        mTrackListPresenter.getTrackList();
+    }
+
+    public void setTrackList(ArrayList<SongModel> mSongList) {
+        this.mSongList = mSongList;
+    }
+
+    @Override
+    public void onFetchDataSuccess() {
+        Log.i(TAG, "New data recieved");
+        initRecyclerLayout();
+        if(mSwipeRefreshLayout.isRefreshing()) {
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    @Override
+    public void showLoading() {
+
+    }
+
+    @Override
+    public void hideLoading() {
+
+    }
+
+    @Override
+    public void openActivityOnTokenExpire() {
+
+    }
+
+    @Override
+    public void onError(int resId) {
+
+    }
+
+    @Override
+    public void onError(String message) {
+
+    }
+
+    @Override
+    public void showMessage(String message) {
+
+    }
+
+    @Override
+    public void showMessage(int resId) {
+
+    }
+
+    @Override
+    public boolean isNetworkConnected() {
+        return false;
+    }
+
+    @Override
+    public void hideKeyboard() {
+
     }
 }
