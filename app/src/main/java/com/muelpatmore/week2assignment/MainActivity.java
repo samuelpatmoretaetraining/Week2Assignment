@@ -1,7 +1,6 @@
 package com.muelpatmore.week2assignment;
 
 
-import android.nfc.tech.TagTechnology;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -9,20 +8,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.TextView;
 
-import com.muelpatmore.week2assignment.data.network.services.RequestInterface;
-import com.muelpatmore.week2assignment.data.network.services.ServerConnection;
-import com.muelpatmore.week2assignment.data.network.services.models.MusicResultsModel;
-import com.muelpatmore.week2assignment.data.network.services.models.SongModel;
 import com.muelpatmore.week2assignment.fragments.ClassicMusicFragment;
-
-import java.util.ArrayList;
-
-import io.reactivex.Scheduler;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 

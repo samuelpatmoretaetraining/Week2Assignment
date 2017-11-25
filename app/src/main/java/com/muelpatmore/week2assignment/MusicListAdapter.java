@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.muelpatmore.week2assignment.data.network.services.models.SongModel;
+import com.muelpatmore.week2assignment.data.network.models.SongModel;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;

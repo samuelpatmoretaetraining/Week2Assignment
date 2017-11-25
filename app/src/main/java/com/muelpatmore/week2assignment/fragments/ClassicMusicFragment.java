@@ -18,8 +18,8 @@ import com.muelpatmore.week2assignment.MyMusicApp;
 import com.muelpatmore.week2assignment.R;
 import com.muelpatmore.week2assignment.data.network.services.RequestInterface;
 import com.muelpatmore.week2assignment.data.network.services.ServerConnection;
-import com.muelpatmore.week2assignment.data.network.services.models.MusicResultsModel;
-import com.muelpatmore.week2assignment.data.network.services.models.SongModel;
+import com.muelpatmore.week2assignment.data.network.models.MusicResultsModel;
+import com.muelpatmore.week2assignment.data.network.models.SongModel;
 
 import java.util.ArrayList;
 import java.util.List;

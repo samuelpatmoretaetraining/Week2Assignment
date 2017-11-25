@@ -1,4 +1,4 @@
-package com.muelpatmore.week2assignment.data.network.services.models;
+package com.muelpatmore.week2assignment.data.network.models;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;

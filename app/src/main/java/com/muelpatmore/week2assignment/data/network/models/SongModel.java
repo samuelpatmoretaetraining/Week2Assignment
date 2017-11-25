@@ -1,14 +1,11 @@
-package com.muelpatmore.week2assignment.data.network.services.models;
+package com.muelpatmore.week2assignment.data.network.models;
 
-import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by Sam on 25/11/2017.
  */
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
 public class SongModel {
 
