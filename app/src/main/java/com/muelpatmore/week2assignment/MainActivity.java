@@ -1,8 +1,11 @@
 package com.muelpatmore.week2assignment;
 
+
+import android.nfc.tech.TagTechnology;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -12,6 +15,7 @@ import com.muelpatmore.week2assignment.data.network.services.RequestInterface;
 import com.muelpatmore.week2assignment.data.network.services.ServerConnection;
 import com.muelpatmore.week2assignment.data.network.services.models.MusicResultsModel;
 import com.muelpatmore.week2assignment.data.network.services.models.SongModel;
+import com.muelpatmore.week2assignment.fragments.ClassicMusicFragment;
 
 import java.util.ArrayList;
 
@@ -24,9 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "MainActivity";
 
-    private TextView mTextMessage;
-    private RequestInterface requestInterface;
-    private ArrayList<SongModel> songList;
+    private FragmentManager fragmentManager;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -35,13 +37,13 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
+                    Log.i(TAG, "Home listener clicked");
                     return true;
                 case R.id.navigation_dashboard:
-                    mTextMessage.setText(R.string.title_dashboard);
+                    Log.i(TAG, "Nav listener clicked");
                     return true;
                 case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
+                    Log.i(TAG, "Notification listener clicked");
                     return true;
             }
             return false;
@@ -53,29 +55,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        requestInterface = ServerConnection.getServerConnection();
-        requestInterface.getClassicList()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<MusicResultsModel>() {
-                    @Override
-                    public void accept(MusicResultsModel musicResultsModel) throws Exception {
-                        Log.i(TAG, "API data recieved");
-                        songList = new ArrayList<>(musicResultsModel.getResults());
-                        for (SongModel s : songList) {
-                            Log.i(TAG, s.getTrackName());
-                        }
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        throwable.printStackTrace();
-                    }
-                });
-    }
 
+        fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .add( R.id.fragmentContainer, new ClassicMusicFragment())
+                .commit();
+
+    }
 }
