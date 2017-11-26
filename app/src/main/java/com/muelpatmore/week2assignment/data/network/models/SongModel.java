@@ -5,8 +5,10 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by Sam on 25/11/2017.
+ *
+ * conversion class for the iTunes music library. Stores key data regarding the song with links to
+ * further information on album and artist.
  */
-
 public class SongModel {
 
     @SerializedName("wrapperType")

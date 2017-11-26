@@ -16,16 +16,19 @@ import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by Sam on 25/11/2017.
+ *
+ * Single resource for all API requests accessible through the APIHelper interface.
  */
-
 public class AppAPIHelper implements APIHelper {
 
     private static final String TAG = APIHelper.class.getSimpleName();
-
     private RequestInterface mRequestInterface;
 
+    /**
+     * Get BASE_URL connection to API server.
+     */
     public AppAPIHelper() {
-        this.mRequestInterface = ConnectionService.getConnection();
+        this.mRequestInterface = ConnectionService.BackendService();
     }
 
     @Override

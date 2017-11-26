@@ -60,29 +60,23 @@ public class TrackListView extends Fragment implements SwipeRefreshLayout.OnRefr
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
-        //getClassicMusicList();
 
         mTrackListPresenter = new TrackListPresenter(new AppDataManager(), new AppSchedulerProvider(), new CompositeDisposable());
         mTrackListPresenter.onAttach(this);
         mTrackListPresenter.onViewPrepared(this);
 
-        Log.i(TAG, "Creating LayoutManager");
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         mLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(mLayoutManager);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeToRefreshLayout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
         // restore instance state on reload
         if(savedInstanceState == null) {
-            mTrackListPresenter.getTrackList();
+            onRefresh();
         } else {
-            // restore scroll position in RecyclerView
-            int scrollPosition = savedInstanceState.getInt(SCROLL_POSITION, 0);
-            if (mRecyclerView.getLayoutManager() != null) {
-                //ToDo this is not working yet
-                mRecyclerView.getLayoutManager().scrollToPosition(scrollPosition);
-            }
+            mLayoutManager.scrollToPositionWithOffset(savedInstanceState.getInt(SCROLL_POSITION, 0), 0);
         }
 
     }
@@ -111,33 +105,12 @@ public class TrackListView extends Fragment implements SwipeRefreshLayout.OnRefr
 
     }
 
-//    public void getClassicMusicList() {
-//        mRequestInterface = ServerConnection.getServerConnection();
-//        mRequestInterface.getClassicList()
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribeOn(Schedulers.io())
-//                .subscribe(new Consumer<MusicResultsModel>() {
-//                    @Override
-//                    public void accept(MusicResultsModel musicResultsModel) throws Exception {
-//                        Log.i(TAG, "API data recieved");
-//                        mSongList = new ArrayList<>(musicResultsModel.getResults());
-//                        initRecyclerLayout(musicResultsModel.getResults());
-//                        Log.i(TAG, "List of "+ mSongList.size()+"s read from API.");
-//                    }
-//                }, new Consumer<Throwable>() {
-//                    @Override
-//                    public void accept(Throwable throwable) throws Exception {
-//                        throwable.printStackTrace();
-//                    }
-//                });
-//    }
-
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         int scrollPosition = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
         savedInstanceState.putInt(SCROLL_POSITION, scrollPosition);
-        Log.i(TAG, "Scroll positon saved in instance state.");
+        Log.i(TAG, "Scroll position "+scrollPosition+" saved in instance state.");
     }
 
     @Override

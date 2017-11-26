@@ -6,8 +6,10 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by Sam on 25/11/2017.
+ *
+ * GSON conversion class for the iTunes music library. Top level result confirming the number of
+ * results and a list of SongModel objects encapsulating the data.
  */
-
 public class MusicResultsModel {
 
     @SerializedName("resultCount")

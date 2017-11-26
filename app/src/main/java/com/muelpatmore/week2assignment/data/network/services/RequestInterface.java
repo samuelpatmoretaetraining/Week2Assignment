@@ -8,8 +8,9 @@ import retrofit2.http.GET;
 
 /**
  * Created by Samuel on 24/11/2017.
+ *
+ * List of Retrofit compliant HTTP requests for instantiation by ConnectionService.
  */
-
 public interface RequestInterface {
 
     @GET(API_Constants.CLASSIC_QUERY)

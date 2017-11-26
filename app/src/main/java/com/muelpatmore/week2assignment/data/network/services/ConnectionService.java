@@ -24,14 +24,20 @@ import static android.content.ContentValues.TAG;
 
 /**
  * Created by kalpesh on 13/07/2017.
+ *
+ * API conectivity resource class making initial connection to online APIs. Allows for cached and
+ * uncached connections to be established.
  */
-
 public class ConnectionService {
 
     static Retrofit retrofit;
     static OkHttpClient okHttpClient;
     static RequestInterface requestInterface;
 
+    /**
+     * Opens a connection to the iTunes music catalogue API preloaded with the HTTP requests
+     * spesified in the RequestInterface interface class.
+     */
     public static RequestInterface getConnection(){
 
         HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
@@ -50,7 +56,10 @@ public class ConnectionService {
         return retrofit.create(RequestInterface.class);
     }
 
-
+    /**
+     * Opens a cached connection to the iTunes music catalogue API preloaded with the HTTP requests
+     * spesified in the RequestInterface interface class.
+     */
     public static RequestInterface BackendService() {
 
         File httpCacheDirectory = new File(MyMusicApp.getApplication().getCacheDir(),  "responses");
