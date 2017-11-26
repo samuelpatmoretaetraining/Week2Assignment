@@ -13,7 +13,7 @@ public class ClassicTrackListMessage {
     public final ArrayList<SongModel> trackList;
 
     public ClassicTrackListMessage(ArrayList<SongModel> trackList) {
-        this.trackList = trackList;
+        this.trackList = trackList;//
     }
 
 }
