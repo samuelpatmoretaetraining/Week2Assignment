@@ -16,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
 
     private FragmentManager fragmentManager;
+    private TrackListView classicFragment, rockFragment, popFragment;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -45,11 +46,23 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        initFragments();
 
         fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .add( R.id.fragmentContainer, new TrackListView())
+                .add( R.id.fragmentContainer, classicFragment)
                 .commit();
 
+    }
+
+    private void initFragments() {
+        classicFragment = new TrackListView();
+        classicFragment.setGenre(AppConstants.CLASSIC);
+
+        rockFragment = new TrackListView();
+        rockFragment.setGenre(AppConstants.ROCK);
+
+        popFragment = new TrackListView();
+        popFragment.setGenre(AppConstants.POP);
     }
 }

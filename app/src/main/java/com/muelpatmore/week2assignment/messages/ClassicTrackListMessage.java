@@ -8,12 +8,10 @@ import java.util.ArrayList;
  * Created by Sam on 26/11/2017.
  */
 
-public class ClassicTrackListMessage {
-
-    public final ArrayList<SongModel> trackList;
+public class ClassicTrackListMessage extends TrackListMessage{
 
     public ClassicTrackListMessage(ArrayList<SongModel> trackList) {
-        this.trackList = trackList;//
+        super(trackList);
     }
 
 }
